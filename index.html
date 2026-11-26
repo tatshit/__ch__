@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10111a">
+  <meta name="description" content="Личный трекер привычек, целей и прогресса">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>Мой прогресс</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0d0f17;--panel:#171a26;--panel2:#1e2231;--line:#292e40;--text:#f3f4fb;--muted:#9299ad;--accent:#9b83ff;--green:#55d6a2;--yellow:#f4c76b;--red:#ff7c91}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(ellipse at 80% -10%,#282047 0,transparent 42%),var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif;padding:0 0 calc(82px + env(safe-area-inset-bottom))}
+    button,input{font:inherit} button{cursor:pointer;color:inherit}
+    .wrap{max-width:620px;margin:auto;padding:22px 16px 24px}
+    header{display:flex;justify-content:space-between;align-items:center;margin:5px 0 22px}
+    .eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+    h1{font-size:27px;line-height:1.1;margin:4px 0 0;letter-spacing:-.04em}
+    .avatar{width:42px;height:42px;border-radius:15px;background:linear-gradient(135deg,#a18aff,#5b49a9);display:grid;place-items:center;font-size:20px;box-shadow:0 8px 24px #7861dc40}
+    .card{background:linear-gradient(145deg,#1a1d2a,#151824);border:1px solid var(--line);border-radius:22px;padding:17px;margin:13px 0;box-shadow:0 10px 30px #0002}
+    .hero{background:linear-gradient(130deg,#30265b,#1d2033 65%,#172b31);border-color:#4a3c78}
+    .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .muted{color:var(--muted)} .small{font-size:12px;color:var(--muted)}
+    .level{font-size:12px;font-weight:800;color:#d8ceff;background:#ffffff16;border:1px solid #ffffff20;padding:6px 10px;border-radius:99px}
+    .xp{font-size:34px;font-weight:850;letter-spacing:-.05em;margin:8px 0 0}
+    .xp span{font-size:14px;color:#c6baff;font-weight:650;letter-spacing:0}
+    .bar{height:9px;background:#ffffff20;border-radius:99px;overflow:hidden;margin:12px 0 7px}
+    .bar>i{display:block;height:100%;width:0;background:linear-gradient(90deg,#a18aff,#58d9b0);border-radius:99px;transition:width .25s}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:13px 0}
+    .stat{background:#ffffff0c;border:1px solid #ffffff12;border-radius:16px;padding:12px 10px}
+    .stat b{display:block;font-size:21px;letter-spacing:-.04em}.stat span{font-size:11px;color:var(--muted)}
+    h2{font-size:17px;margin:22px 2px 10px;letter-spacing:-.02em}
+    .section-note{font-size:12px;color:var(--muted);margin:-5px 2px 12px}
+    .habit{display:flex;align-items:center;gap:12px;padding:13px 12px;background:var(--panel);border:1px solid var(--line);border-radius:16px;margin:8px 0}
+    .habit.done{border-color:#3b806c;background:#172923}
+    .check{width:27px;height:27px;border-radius:9px;border:1.5px solid #555d75;display:grid;place-items:center;flex:none;background:#ffffff05}
+    .done .check{background:var(--green);border-color:var(--green);color:#0b2119;font-weight:900}
+    .habit-name{font-weight:650;flex:1}.habit-meta{font-size:11px;color:var(--muted);margin-top:2px}
+    .points{font-size:11px;color:var(--yellow);font-weight:750}
+    .iconbtn,.primary,.ghost,.tab{border:0;border-radius:13px;padding:10px 13px;background:var(--panel2)}
+    .primary{background:linear-gradient(135deg,#9278ff,#7057d7);font-weight:750;box-shadow:0 7px 18px #8269eb35}
+    .ghost{border:1px solid var(--line);background:#ffffff08;color:var(--muted)}
+    .addrow{display:flex;gap:8px;margin-top:10px}.addrow input{min-width:0;flex:1;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:12px;color:var(--text);outline:none}
+    .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+    .day{aspect-ratio:1;border-radius:10px;background:var(--panel2);display:grid;place-items:center;font-size:12px;color:var(--muted);border:1px solid transparent}
+    .day.today{border-color:var(--accent);color:var(--text)}.day.active{background:#245341;color:#b8ffe0}.day.partial{background:#54432a;color:#ffe3a6}
+    .weekday{font-size:10px;text-align:center;color:var(--muted);padding-bottom:3px}
+    .achievement{display:flex;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}.achievement:last-child{border:0}
+    .medal{width:38px;height:38px;border-radius:13px;background:#3a3159;display:grid;place-items:center;font-size:19px}
+    .locked{opacity:.42;filter:grayscale(1)}
+    nav{position:fixed;bottom:0;left:0;right:0;background:#11131df2;backdrop-filter:blur(16px);border-top:1px solid var(--line);padding:9px 10px calc(9px + env(safe-area-inset-bottom));display:flex;justify-content:center;z-index:5}
+    .navinner{width:100%;max-width:620px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .tab{background:transparent;color:var(--muted);font-size:11px;padding:7px 3px;display:grid;gap:3px;justify-items:center}.tab strong{font-size:19px}.tab.active{color:#c9bdff;background:#8f79ff18}
+    .view{display:none}.view.active{display:block}
+    .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#252a3a;border:1px solid var(--line);padding:10px 15px;border-radius:99px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;white-space:nowrap;z-index:8}.toast.show{opacity:1}
+    .empty{padding:18px;text-align:center;color:var(--muted);font-size:13px}
+    @media(min-width:520px){.wrap{padding-top:30px}.card{padding:20px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header><div><div class="eyebrow">Твой личный трекер</div><h1>Мой прогресс</h1></div><div class="avatar">⚡</div></header>
+
+  <section id="home" class="view active">
+    <div class="card hero">
+      <div class="row"><span class="eyebrow">Текущий уровень</span><span class="level" id="levelName">Уровень 1 · Новичок</span></div>
+      <div class="xp"><span id="xp">0</span> <span>XP</span></div>
+      <div class="bar"><i id="xpbar"></i></div>
+      <div class="row small"><span id="xpProgress">0 / 100 XP до следующего уровня</span><span id="xpPercent">0%</span></div>
+      <div class="stats">
+        <div class="stat"><b id="streak">0 🔥</b><span>дней подряд</span></div>
+        <div class="stat"><b id="todayDone">0/0</b><span>задач сегодня</span></div>
+        <div class="stat"><b id="totalDays">0</b><span>активных дней</span></div>
+      </div>
+    </div>
+    <div class="row"><h2 style="margin-top:18px">Задачи на сегодня</h2><span class="small" id="todayLabel"></span></div>
+    <p class="section-note">Каждая выполненная привычка приносит XP. Начни с малого.</p>
+    <div id="habitList"></div>
+    <div class="addrow"><input id="newHabit" maxlength="48" placeholder="Добавить свою привычку…"><button class="primary" id="addHabit">＋</button></div>
+    <div class="row" style="margin-top:17px"><span class="small">Прогресс дня</span><b id="dayPercent">0%</b></div>
+    <div class="bar"><i id="daybar"></i></div>
+  </section>
+
+  <section id="calendarView" class="view">
+    <h2 style="margin-top:8px">Календарь активности</h2><p class="section-note">Отмечай дни и наблюдай, как формируется привычка.</p>
+    <div class="card"><div class="row"><button class="iconbtn" id="prevMonth">‹</button><b id="monthTitle"></b><button class="iconbtn" id="nextMonth">›</button></div><div class="calendar" id="calendar"></div><div class="row small" style="margin-top:13px"><span>🟩 Выполнены все привычки</span><span>🟨 Частично</span></div></div>
+    <div class="card"><div class="eyebrow">Итоги</div><div class="stats"><div class="stat"><b id="monthActive">0</b><span>активных дней</span></div><div class="stat"><b id="monthRate">0%</b><span>выполнение</span></div><div class="stat"><b id="monthXP">0</b><span>получено XP</span></div></div></div>
+  </section>
+
+  <section id="rewards" class="view">
+    <h2 style="margin-top:8px">Достижения</h2><p class="section-note">Небольшие победы складываются в большой результат.</p>
+    <div class="card" id="achievements"></div>
+    <h2>Твои ориентиры</h2>
+    <div class="card"><div class="row"><div><b>🎯 Стать Automation QA</b><div class="small">Главная цель — перейти к работе по специальности</div></div><span class="level">Главная</span></div><div class="bar"><i style="width:8%"></i></div><div class="small">Прогресс определяется твоими действиями, а не идеальными днями.</div></div>
+    <button class="ghost" id="reset">Сбросить все данные</button>
+  </section>
+</div>
+<nav><div class="navinner">
+  <button class="tab active" data-view="home"><strong>⌂</strong>Сегодня</button>
+  <button class="tab" data-view="calendarView"><strong>▦</strong>Календарь</button>
+  <button class="tab" data-view="rewards"><strong>♜</strong>Награды</button>
+</div></nav>
+<div class="toast" id="toast"></div>
+<script>
+const KEY='my-progress-v1';
+const defaults=[
+ {id:'qa',name:'Занимался Automation QA',detail:'Хотя бы 45–60 минут',xp:25},
+ {id:'python',name:'Практика Python',detail:'Решить одну задачу или написать код',xp:15},
+ {id:'interview',name:'Подготовка к собеседованию',detail:'Повторить один вопрос',xp:10},
+ {id:'body',name:'Движение или тренировка',detail:'Хотя бы 15–20 минут',xp:15},
+ {id:'reading',name:'Чтение / саморазвитие',detail:'10 минут без отвлечений',xp:10}
+];
+let data=load(), monthCursor=new Date(); monthCursor.setDate(1);
+function load(){try{let x=JSON.parse(localStorage.getItem(KEY));if(x&&x.habits&&x.days)return x}catch(e){}return {habits:defaults,days:{}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function dateKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function dayData(k=dateKey()){return data.days[k]||(data.days[k]={done:[],xp:0})}
+function allXP(){return Object.values(data.days).reduce((s,d)=>s+(d.xp||0),0)}
+function level(){return Math.floor(allXP()/100)+1}
+function streak(){let n=0,d=new Date();while(true){let k=dateKey(d),x=data.days[k];if(!x||!x.done||x.done.length===0){if(n===0&&k===dateKey()){}else break;}else n++;d.setDate(d.getDate()-1);if(n>365)break}return n}
+function activeDays(){return Object.values(data.days).filter(x=>x.done&&x.done.length).length}
+function toast(t){let el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1800)}
+function render(){
+ const d=dayData(),total=data.habits.length,done=d.done.length,pct=total?Math.round(done/total*100):0,xp=allXP(),lvl=level(),within=xp%100;
+ document.getElementById('xp').textContent=xp;document.getElementById('levelName').textContent=`Уровень ${lvl} · ${['Новичок','Ученик','Практик','Специалист','Мастер'][Math.min(lvl-1,4)]}`;
+ document.getElementById('xpbar').style.width=within+'%';document.getElementById('xpProgress').textContent=`${within} / 100 XP до следующего уровня`;document.getElementById('xpPercent').textContent=within+'%';
+ document.getElementById('streak').textContent=streak()+' 🔥';document.getElementById('todayDone').textContent=`${done}/${total}`;document.getElementById('totalDays').textContent=activeDays();
+ document.getElementById('todayLabel').textContent=new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long'});
+ document.getElementById('dayPercent').textContent=pct+'%';document.getElementById('daybar').style.width=pct+'%';
+ let list=document.getElementById('habitList');list.innerHTML='';
+ if(!total)list.innerHTML='<div class="empty">Пока нет привычек. Добавь первую выше.</div>';
+ data.habits.forEach(h=>{let is=d.done.includes(h.id),el=document.createElement('div');el.className='habit'+(is?' done':'');el.innerHTML=`<button class="check" aria-label="Отметить">${is?'✓':''}</button><div class="habit-name"></div><span class="points">+${h.xp||10} XP</span><button class="iconbtn" aria-label="Удалить" style="padding:7px;color:#8e94a8">⋯</button>`;
+ el.querySelector('.habit-name').innerHTML=`${escapeHTML(h.name)}<div class="habit-meta">${escapeHTML(h.detail||'Своя привычка')}</div>`;
+ el.querySelector('.check').onclick=()=>toggle(h.id);el.querySelector('.iconbtn').onclick=()=>{if(confirm(`Удалить привычку «${h.name}»?`)){data.habits=data.habits.filter(x=>x.id!==h.id);save();render()}};
+ list.appendChild(el)});
+ renderCalendar();renderAchievements();
+}
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toggle(id){let d=dayData(),i=d.done.indexOf(id),h=data.habits.find(x=>x.id===id);if(i>=0){d.done.splice(i,1);d.xp=Math.max(0,d.xp-(h.xp||10));toast('Отметка отменена')}else{d.done.push(id);d.xp+=(h.xp||10);toast(`+${h.xp||10} XP — так держать!`)}save();render()}
+document.getElementById('addHabit').onclick=()=>{let input=document.getElementById('newHabit'),name=input.value.trim();if(!name)return;data.habits.push({id:'h'+Date.now(),name,detail:'Своя привычка',xp:10});input.value='';save();render();toast('Привычка добавлена')};
+document.getElementById('newHabit').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('addHabit').click()});
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.view').forEach(x=>x.classList.toggle('active',x.id===b.dataset.view));if(b.dataset.view==='calendarView')renderCalendar()});
+function renderCalendar(){
+ let y=monthCursor.getFullYear(),m=monthCursor.getMonth(),first=new Date(y,m,1).getDay(),offset=(first+6)%7,days=new Date(y,m+1,0).getDate(),cal=document.getElementById('calendar');document.getElementById('monthTitle').textContent=monthCursor.toLocaleDateString('ru-RU',{month:'long',year:'numeric'});cal.innerHTML='';
+ ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].forEach(x=>{let e=document.createElement('div');e.className='weekday';e.textContent=x;cal.appendChild(e)});
+ for(let i=0;i<offset;i++){let e=document.createElement('div');cal.appendChild(e)}
+ let active=0,complete=0,totalXP=0;
+ for(let n=1;n<=days;n++){let dt=new Date(y,m,n),k=dateKey(dt),d=data.days[k],e=document.createElement('div');e.className='day';if(k===dateKey())e.classList.add('today');if(d&&d.done&&d.done.length){active++;totalXP+=d.xp||0;if(d.done.length>=data.habits.length&&data.habits.length)e.classList.add('active');else e.classList.add('partial');if(d.done.length>=data.habits.length&&data.habits.length)complete++}e.textContent=n;cal.appendChild(e)}
+ document.getElementById('monthActive').textContent=active;document.getElementById('monthRate').textContent=days?Math.round(active/days*100)+'%':'0%';document.getElementById('monthXP').textContent=totalXP;
+}
+document.getElementById('prevMonth').onclick=()=>{monthCursor.setMonth(monthCursor.getMonth()-1);renderCalendar()};
+document.getElementById('nextMonth').onclick=()=>{monthCursor.setMonth(monthCursor.getMonth()+1);renderCalendar()};
+function renderAchievements(){let xp=allXP(),days=activeDays(),s=streak(),items=[['🌱','Первый шаг','Отметить первую привычку',days>=1],['🔥','Три дня в деле','Быть активным 3 дня подряд',s>=3],['⚡','Сто XP','Набрать 100 XP',xp>=100],['📚','Неделя практики','Набрать 7 активных дней',days>=7],['🏅','Пятьсот XP','Набрать 500 XP',xp>=500]];let el=document.getElementById('achievements');el.innerHTML='';items.forEach(a=>{let d=document.createElement('div');d.className='achievement'+(a[3]?'':' locked');d.innerHTML=`<div class="medal">${a[0]}</div><div><b>${a[1]}</b><div class="small">${a[2]}</div></div><span style="margin-left:auto">${a[3]?'✓':'🔒'}</span>`;el.appendChild(d)})}
+document.getElementById('reset').onclick=()=>{if(confirm('Точно удалить все отметки, XP и свои привычки?')){data={habits:defaults,days:{}};save();render();toast('Данные сброшены')}};
+if('serviceWorker' in navigator && location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+render();
+</script>
+</body></html>
